@@ -12,7 +12,6 @@ class TokenMiddleware(Middleware):
         match = self.regex.match(header)
         token = match and match.group(1) or None
         req.token = token
-        print(req.token)
 
 
 class InvalidTokenException(Exception):
@@ -21,12 +20,18 @@ class InvalidTokenException(Exception):
 
 def on_exception(req, resp, exception):
     if isinstance(exception, InvalidTokenException):
-        resp.text = "Token is invalid"
-        resp.status_code = 401
+        if req.token is None:
+            resp.text = "Tokenni headersga qosh"
+            resp.status_code = 401
+        else:
+            resp.text = "Token is Invalid"
+            resp.status_code = 401
+
+
 
 
 def login_required(handler):
-    def wrapped_handler(req, resp):
+    def wrapped_handler(req, resp, *args, **kwargs):
         token = getattr(req, "token", None)
         print(f"token:{token}")
 

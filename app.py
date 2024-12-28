@@ -1,6 +1,7 @@
 from pylord.app import PyLordApp
 from auth import STATIC_TOKEN, TokenMiddleware, login_required, on_exception
 from storage import BookStorage
+import json
 
 app = PyLordApp()
 
@@ -43,19 +44,27 @@ def delete(req, resp, id):
     resp.status_code = 204
 
 
-@app.route("/get/{id}")
+@app.route("/get/{id:d}", allowed_methods=["get"])
 def get_book(req, resp, id):
-    if id in book_storage.books:
+    book = book_storage.get(id)
+    if book:
         resp.status_code = 200
-        book_storage.get(id)
-
+        resp.json = book._asdict()
 
     else:
         resp.text = "bunday kitob yo'q"
         resp.status_code = 404
 
 
+@app.route("/put/{id:d}", allowed_methods=["put"])
+def put_book(req, resp, id):
 
+    book = book_storage.put(id, **req.POST)
 
+    if book:
+        resp.status_code = 201
+        resp.json = book._asdict()
 
-
+    else:
+        resp.status_code = 404
+        resp.text = "Not Found"

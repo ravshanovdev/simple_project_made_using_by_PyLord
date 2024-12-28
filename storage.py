@@ -29,3 +29,15 @@ class BookStorage:
         self.books.append(book)
         return book
 
+    def put(self, id, **kwargs):
+        book = self.get(id)  # Find the book by ID
+
+        if book:
+            index = self.books.index(book)
+
+            updated_book = book._replace(**kwargs)
+            self.books[index] = updated_book
+
+            return updated_book
+
+        return None
